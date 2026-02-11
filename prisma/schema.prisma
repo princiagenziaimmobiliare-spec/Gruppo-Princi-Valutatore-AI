@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Locality {
+  id           String   @id @default(cuid())
+  comune       String
+  zona         String?
+  basePriceEur Float
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  requests ValuationRequest[]
+
+  @@unique([comune, zona])
+}
+
+model Settings {
+  id                    String @id @default("global")
+  provinceFallbackPrice Float
+  rangePercentage       Float  @default(8)
+  ctaUrl                String @default("mailto:info@gruppoprinci.it")
+  contactEmail          String @default("info@gruppoprinci.it")
+  contactPhone          String @default("+39 000 0000000")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model Coefficient {
+  id         String @id @default(cuid())
+  group      String
+  key        String
+  label      String
+  value      Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([group, key])
+}
+
+model ValuationRequest {
+  id                String   @id @default(cuid())
+  firstName         String
+  lastName          String
+  email             String
+  phone             String
+  street            String
+  streetNumber      String
+  cap               String
+  comune            String
+  provincia         String
+  zona              String?
+  propertyType      String
+  mq                Float
+  rooms             Int
+  bathrooms         Int
+  floor             Int?
+  hasElevator       Boolean?
+  condition         String
+  buildYear         Int?
+  features          String
+  notes             String?
+  consentData       Boolean
+  consentContact    Boolean
+  honeypot          String?
+  valuationCenter   Float
+  valuationMin      Float
+  valuationMax      Float
+  coefficientUsed   Float
+  createdAt         DateTime @default(now())
+  localityId        String?
+
+  locality Locality? @relation(fields: [localityId], references: [id])
+}
